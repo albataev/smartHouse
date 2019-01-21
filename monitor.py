@@ -136,18 +136,17 @@ while True:
         with contextlib.closing(urllib.request.urlopen(DATA_URL, timeout=CONNECT_TIMEOUT)) as f:
             resp = f.read().decode().split('<')[0].replace(' ', '').split(';')
         res = prepare_chart_data(resp)
+        if res:
+            write_to_file(res)
+            print(json.dumps(res))
+            res['created'] = datetime.datetime.now()
+            fill_database(res)
+        if not dataAccumulatorInitialized:
+            print('IN IF: dataAccumulatorFilled: ', dataAccumulatorInitialized)
+            time.sleep(1)
     except Exception as e:
         res = False
         print('Error occured during requesting data: ', e)
         raise e
-    if res:
-        write_to_file(res)
-        print(json.dumps(res))
-        res['created'] = datetime.datetime.now()
-        fill_database(res)
-    if not dataAccumulatorInitialized:
-        print('IN IF: dataAccumulatorFilled: ', dataAccumulatorInitialized)
-        time.sleep(1)
-    else:
-        # print('Sleeping: ', REQUEST_INTERVAL_IN_SECONDS, datetime.datetime.now().strftime("%H:%M:%S"))
-        time.sleep(REQUEST_INTERVAL_IN_SECONDS)
+    print('Sleeping: ', REQUEST_INTERVAL_IN_SECONDS, datetime.datetime.now().strftime("%H:%M:%S"))
+    time.sleep(REQUEST_INTERVAL_IN_SECONDS)
