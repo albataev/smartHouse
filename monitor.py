@@ -147,6 +147,6 @@ while True:
     except Exception as e:
         res = False
         print('Error occured during requesting data: ', e)
-        raise e
+        #raise e
     print('Sleeping: ', REQUEST_INTERVAL_IN_SECONDS, datetime.datetime.now().strftime("%H:%M:%S"))
     time.sleep(REQUEST_INTERVAL_IN_SECONDS)
