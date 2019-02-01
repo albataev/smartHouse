@@ -7,22 +7,7 @@ import contextlib
 from collections import OrderedDict
 import json
 import pymongo
-
-def get_settings(fname='settings.json'):
-    try:
-        with open(fname, 'r') as f:
-            settings = json.loads(f.read())
-            print('Settings from', fname, ':', settings)
-    except IOError as e:
-        print("I/O error({0}): {1}".format(e.errno, e.strerror))
-        raise
-    except ValueError as e:
-        print("Value error: {}".format(e))
-        raise
-    except:
-        print("Unexpected error")
-        raise
-    return settings
+from middleware import get_settings
 
 SETTINGS = get_settings()
 if SETTINGS['test_mode'] == 'on':
@@ -94,7 +79,7 @@ def prepare_chart_data(response):
             formatted_result = False
         else:
             dataAccumulatorInitialized = True
-            if sum(data_accumulator[param_name]['accumulator']) == 0 or param_name == 'STns' or param_name == 'STnag':
+            if sum(data_accumulator[param_name]['accumulator']) == 0 or param_name == 'STns' or param_name == 'STnag' or param_name == 'dT':
                 formatted_result[param_name] = round(param_val, DIGITS_TO_ROUND)
                 if param_val != 0 and param_name != 'STns' and param_name != 'STnag':
                     fill_data_accumulator(param_name, param_val)
@@ -137,6 +122,7 @@ while True:
             resp = f.read().decode().split('<')[0].replace(' ', '').split(';')
         res = prepare_chart_data(resp)
         if res:
+            print("WRITING: ", filename)
             write_to_file(res)
             print(json.dumps(res))
             res['created'] = datetime.datetime.now()

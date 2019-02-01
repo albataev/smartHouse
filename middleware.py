@@ -52,8 +52,10 @@ def get_data(file_name):
     data = "['time', 'Tkol', {id: 'Tniz1', label: 'Tniz'}, 'Tyl', 'dT', 'STns', 'STnag', 'Tkom', 'Tkol2'],\n"
     if data_from_file is not None:
         for row in data_from_file:
+            time_stamp = [row[-1]]
+            row = row[:8] + time_stamp # TEMPORARY WORKAROUND, trim new params
             tmp_row = []
-            tmp_row.append("'" + str(row[8]) + "'")
+            tmp_row.append("'" + str(row[-1]) + "'")
             tmp_row += row[:-1]
             data += '[' + ', '.join(tmp_row) + '],\n'
         data = '[\n' + data[:-2] + '\n]'
