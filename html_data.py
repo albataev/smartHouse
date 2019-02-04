@@ -13,7 +13,7 @@ html_data = '''
             width: 95%;
             height: 95%;
             padding-top: 0px;
-            margin: -60px auto 0;
+            margin: 0 auto;
         }}
         .buttonsWrapper {{
             display: block;
@@ -146,7 +146,8 @@ html_data = '''
         
             var options = {{title: '{grafic_date}',
                 colors: fillcolors(),
-                legend: {{ position: 'bottom' }}
+                legend: {{ position: 'none' }},
+                chartArea: {{top: 50, bottom: 50, left: 50, right: 50}}
             }};
                 
             var view = new google.visualization.DataView(data);
