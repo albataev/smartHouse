@@ -22,6 +22,7 @@ API_PATHS = {
     '/off1': {'status': 200},
     '/on2': {'status': 200},
     '/off2': {'status': 200},
+    '/?=date': {'status': 200}
 }
 
 RESOURCES_PATHS = {
@@ -89,8 +90,9 @@ class MyHandler(BaseHTTPRequestHandler):
             status_nasos_nagrev = middleware.get_updated_relay_state()
             final_content = html_data.format(chart_data = chart_data,
                                              status_nasos_nagrev = status_nasos_nagrev,
-                                             history_data = middleware.get_available_data(),
-                                             grafic_date = middleware.get_data_date(file_to_process))
+                                             # history_data = middleware.get_available_data(),
+                                             grafic_date = middleware.get_data_date(file_to_process),
+                                             data_headers = request_data['data_headers'])
             return bytes(final_content, 'UTF-8')
         if path in API_PATHS:
             final_content = middleware.process_api_request(path)

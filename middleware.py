@@ -38,6 +38,7 @@ def get_data(file_name):
     data_from_file = None
     res = {
         'chart_data': '',
+        'data_headers': '',
         'status_nasos_nagrev': {
             'status_nasos': 0,
             'status_nagrev': 0
@@ -49,19 +50,24 @@ def get_data(file_name):
     else:
         print('No such file: ', file_name)
         #tbat = tkol2
-    data = "['time', 'Tkol', {id: 'Tniz1', label: 'Tniz'}, 'Tyl', 'dT', 'STns', 'STnag', 'Tkom', 'Tkol2'],\n"
+    tmp_header = [data_from_file[0][-1]] + data_from_file[0][:-1]
+    # proper header format: "['time', 'Tkol', 'Tniz', 'Tyl', 'dT', 'STns', 'STnag', 'Tkom', 'Tkol2', 'Tyst'],\n"
+    data = "['" + ("', '").join(tmp_header) + "'],\n"
+    print("data header: ", data)
     if data_from_file is not None:
-        for row in data_from_file:
+        for row in data_from_file[1:]:
             time_stamp = [row[-1]]
-            row = row[:8] + time_stamp # TEMPORARY WORKAROUND, trim new params
+            # row = row[:9] + time_stamp # TEMPORARY WORKAROUND, trim new params
             tmp_row = []
             tmp_row.append("'" + str(row[-1]) + "'")
             tmp_row += row[:-1]
             data += '[' + ', '.join(tmp_row) + '],\n'
+        print('qqq')
         data = '[\n' + data[:-2] + '\n]'
         last_row = tmp_row
         res = {
                 'chart_data': data,
+                'data_headers': "['" + ("', '").join(tmp_header) + "']",
                 'status_nasos_nagrev': {
                     'status_nasos': int(float(last_row[6])),
                     'status_nagrev': int(float(last_row[5]))
@@ -73,7 +79,9 @@ def get_data(file_name):
 def read_data_from_csv(file_name):
     data_list = []
     if file_name != '':
-        fname = './data/' + file_name
+        if file_name[0] == '?':
+            file_name = file_name.replace('-', '_').split('=')[1] + '.csv'
+        fname = '{}{}'.format('./data/', file_name)
     else:
         fname = './data/' + (datetime.datetime.now().strftime("%Y_%m_%d")) + '.csv'
     print('Data from path ', fname, ' requested')
@@ -81,29 +89,32 @@ def read_data_from_csv(file_name):
         filereader = csv.reader(csvfile, delimiter=';', quotechar='|')
         for row in filereader:
             data_list.append(row)
-    return data_list[1:]
+    return data_list
 
-def get_available_data():
-    onlyfiles = [f for f in listdir('./data/') if isfile(join('./data/', f))]
-    onlyfiles.sort(reverse=True)
-    file_list = ''
-    for f in onlyfiles:
-        file_list += '<p><a href=' + f + '>' + f.split('.')[0].replace('_', '.') + '</a></p>'
-    return file_list
+# def get_available_data():
+#     onlyfiles = [f.split('.')[0].replace('_', '-') for f in listdir('./data/') if isfile(join('./data/', f))]
+#     onlyfiles.sort(reverse=True)
+#     file_list = ''
+#     for f in onlyfiles:
+#         file_list += '<p><a href=?date=' + f + '>' + f.split('.')[0].replace('_', '.') + '</a></p>'
+#     return file_list
 
 def get_paths():
     paths = {'/': {'status': 200}}
     onlyfiles = [f for f in listdir('./data/') if isfile(join('./data/', f))]
     for elem in onlyfiles:
+        paths['/?date=' + elem.split('.')[0].replace('_', '-')] = {'status': 200}
         paths['/' + elem] = {'status': 200}
     # print('PATHS in Middleware: \n', paths)
     return paths
 
 def get_data_date(file_to_process):
     if file_to_process != '':
-        return file_to_process.split('.')[0].replace('_', '.')
+        if file_to_process[0] == '?':
+            return file_to_process.split('=')[1]
+        return file_to_process.split('.')[0].replace('_', '-')
     else:
-        return datetime.datetime.now().strftime("%Y.%m.%d")
+        return datetime.datetime.now().strftime("%Y-%m-%d")
 
 def process_api_request(api_path):
     error_types = {
