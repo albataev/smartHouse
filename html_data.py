@@ -151,7 +151,7 @@ html_data = '''
                 
             var view = new google.visualization.DataView(data);
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-            console.log('INIT COLS : ', view.getViewColumns())
+            console.log('INIT COLS : ', view.getViewColumns())            
             
             var initial_draw = function () {{
                  for (let i = 1; i < dataHeaders.length; i++) {{
@@ -168,6 +168,22 @@ html_data = '''
                     document.getElementById("buttons").insertAdjacentHTML("beforeend", html_to_insert);
                 }}
             }}
+            
+            allOff = function () {{
+                for (let i = 1; i < dataHeaders.length; i++) {{                    
+                    let dName = dataHeaders[i]
+                    console.log(dName)
+                    view.hideColumns([grafiki[dName].id])
+                    grafiki[dName].hiddenState = true
+                    document.getElementById(dName).className = ("butt inactive");
+                    document.getElementById(dName).removeAttribute('style');
+                    console.log('AFTER HIDE ALL : ', view.getViewColumns())
+                }}
+                options.colors = fillcolors()
+                chart.draw(view, options);
+                console.log("Off")
+                chart.clearChart()
+            }}        
             
             toggleGrafik = function(grafikName) {{
                 grafiki[grafikName].hiddenState = !grafiki[grafikName].hiddenState 
@@ -189,7 +205,7 @@ html_data = '''
                 options.colors = fillcolors()
                 console.log('Options colors : ', options.colors)
                 chart.draw(view, options);
-                console.log('AFTER REDRAW : ', view.getViewColumns())    
+                console.log('AFTER REDRAW : ', view.getViewColumns()) 
             }}
 
             function selectHandler(e) {{
@@ -221,6 +237,7 @@ html_data = '''
                 <div id="nasos_nagrev" style="display: inline-block">                
                     <a class="waves-effect waves-light btn-small grey" id="nasos">Насос</a>
                     <a class="waves-effect waves-light btn-small grey" id="nagrev">Нагрев</a>
+                    <a onclick=allOff() class="waves-effect waves-light btn-small grey" id="all_off">Выкл гр</a>                    
                 </div>
             </div>
             <div style="width: 900px; margin: auto"; text-align: left;">
@@ -234,14 +251,15 @@ html_data = '''
         </div>
     </body>
     <script>
-        
+    
+        const dataHeaders = {data_headers}        
         var status_nasos_nagrev = {status_nasos_nagrev}
         var status_nasos = status_nasos_nagrev.status_relay.status_nasos 
         var status_nagrev = status_nasos_nagrev.status_relay.status_nagrev
         var nasos = document.getElementById("nasos");
         var nagrev = document.getElementById("nagrev");
         var APIErrorMessage = document.getElementById("APIErrorMessage");
-        var dataUpdateErrorMessage = document.getElementById("dataUpdateErrorMessage");
+        var dataUpdateErrorMessage = document.getElementById("dataUpdateErrorMessage");   
         
         grafikDate.setAttribute("max", new Date().toISOString().split("T")[0]);
         grafikDate.setAttribute("value", new Date().toISOString().split("T")[0]);
@@ -250,7 +268,7 @@ html_data = '''
             if (status_nasos === 0) {{path = "/on1"}}
             if (status_nasos === 1) {{path = "/off1"}}
             sendSwitchQuery({{"relayObject": nasos, "relayString": "status_nasos", "relay_state": window.status_nasos, "path": path, "strName": "насос"}})
-        }}
+        }}        
         
         nagrev.onclick = function() {{
             if (status_nagrev === 0) {{path = "/on2"}}
