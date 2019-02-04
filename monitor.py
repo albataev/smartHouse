@@ -79,7 +79,7 @@ def prepare_chart_data(response):
             formatted_result = False
         else:
             dataAccumulatorInitialized = True
-            if sum(data_accumulator[param_name]['accumulator']) == 0 or param_name == 'STns' or param_name == 'STnag' or param_name == 'dT':
+            if sum(data_accumulator[param_name]['accumulator']) == 0 or param_name == 'STns' or param_name == 'STnag':
                 formatted_result[param_name] = round(param_val, DIGITS_TO_ROUND)
                 if param_val != 0 and param_name != 'STns' and param_name != 'STnag':
                     fill_data_accumulator(param_name, param_val)
